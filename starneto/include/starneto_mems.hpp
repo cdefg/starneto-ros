@@ -34,20 +34,23 @@ class Starneto {
  public:
 
   // Constructor
-  Starneto(ros::NodeHandle &nodeHandle);
+  Starneto();
   int getNodeRate() const;
 
   // Method
+  //// ROS Method
   void loadParameters();
   void publishToTopics();
+  void sendMsg();
   void initSerial();
+
+  //// Serial Method
   void run();
   void initState();
   void readSerial();
   int  analyzeProtocol();
   void analyzeGpfpd();
   void analyzeGtimu();
-  void sendMsg();
   void runAlgorithm();
  
  private:

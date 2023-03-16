@@ -19,6 +19,10 @@ add_executable(start
   src/starneto_mems.cpp
 )
 
+include_directories(
+  include
+)
+
 ament_target_dependencies(start 
   starneto_msgs
   serial

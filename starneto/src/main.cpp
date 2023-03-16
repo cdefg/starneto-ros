@@ -1,21 +1,5 @@
-/*
-  Copyright(c) 2021:
-  Huang Chenrui <hcr2077@outlook.com>
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-  http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
-*/
-
-#include <ros/ros.h>
+#include  <rclcpp/rclcpp.hpp>
+// #include <ros/ros.h>
 #include <slcurses.h>
 #include "starneto_mems.hpp"
 
@@ -38,7 +22,7 @@ int main(int argc, char **argv) {
     return 0;
 }
 
-Starneto::Starneto(ros::NodeHandle &nodeHandle) : nodeHandle(nodeHandle) {
+Starneto::Starneto(){
     loadParameters();
     publishToTopics();
 };
@@ -90,6 +74,6 @@ void Starneto::initSerial() {
         ser.flushInput(); // first clear the buffer
     }
     catch (serial::IOException &e) {
-        ROS_ERROR_STREAM("serial port: " << serial_port << "init failed.");
+        std::cout << ("serial port: " << serial_port << "init failed.") << std::endl;
     }
 }

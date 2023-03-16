@@ -1,30 +1,13 @@
-/*
-  Copyright(c) 2021:
-  - Huang Chenrui <hcr2077@outlook.com>
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-  http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
-*/
-
-#include <ros/ros.h>
 #include "starneto_mems.hpp"
 #include <sstream>
+#include <iostream>
 
 namespace ns_starneto_mems {
 
     void Starneto::run() {
         //  Here to start
         if (!ser.isOpen()) {
-            ROS_ERROR_STREAM("serial port: " << serial_port << " init failed.");
+            std::cout << "serial port: " << serial_port << " init failed."  << std::endl;
             return;
         }
         Starneto::initState();
@@ -45,7 +28,7 @@ namespace ns_starneto_mems {
             //printf("bytes in buf = %d\n", numinbuf);
         }
         catch (serial::IOException &e) {
-            ROS_ERROR_STREAM("Port crashed！ Please check cable!");
+            std::cout << "Port crashed！ Please check cable!" << std::endl;
         }
         if (numinbuf > 0) {
             numgetted = ser.read(rbuf, numinbuf);//串口缓冲区数据读到rbuf中
@@ -113,7 +96,7 @@ namespace ns_starneto_mems {
                         PosDelimiter[0] = CntByte - 1;//记录分隔符在OneFrame中的位置
                     } else {
                         protocolFlag = UNKNOWN_PROTOCOL;
-                        ROS_ERROR_STREAM("UNKNOWN_PROTOCOL.");
+                        std::cout << ("UNKNOWN_PROTOCOL.") << std::endl;
                     }
                     select_flag = 0;
                     continue; // Don't Delete It Or Oneframe is wrong
@@ -269,7 +252,7 @@ namespace ns_starneto_mems {
                         } else {
                             memset(OneFrame, 0, sizeof(OneFrame));
                             GPFPD_STATE_PARSER = 0;
-                            ROS_ERROR_STREAM("DATA ERROR IN CASE3.");
+                            std::cout << ("DATA ERROR IN CASE3.") << std::endl;
                         }
                         break;
                     case 4: //等待接收状态字节，第二个字符
@@ -282,7 +265,7 @@ namespace ns_starneto_mems {
                         } else {
                             memset(OneFrame, 0, sizeof(OneFrame));
                             GPFPD_STATE_PARSER = 0;
-                            ROS_ERROR_STREAM("DATA ERROR IN CASE4.");
+                            std::cout << ("DATA ERROR IN CASE4.");
                         }
                         str[0] = OneFrame[CntByte - 2];
                         str[1] = OneFrame[CntByte - 1];
@@ -298,7 +281,7 @@ namespace ns_starneto_mems {
                         } else {
                             memset(OneFrame, 0, sizeof(OneFrame));
                             GPFPD_STATE_PARSER = 0;
-                            ROS_ERROR_STREAM("DATA ERROR IN CASE5.");
+                            std::cout << ("DATA ERROR IN CASE5.");
                         }
                         break;
                     case 6: //校验和第一个字符
@@ -310,7 +293,7 @@ namespace ns_starneto_mems {
                         } else {
                             memset(OneFrame, 0, sizeof(OneFrame));
                             GPFPD_STATE_PARSER = 0;
-                            ROS_ERROR_STREAM("DATA ERROR IN CASE6.");
+                            std::cout << ("DATA ERROR IN CASE6.");
                         }
                         break;
                     case 7: //校验和第二个字符
@@ -332,7 +315,7 @@ namespace ns_starneto_mems {
                             {
                                 memset(OneFrame, 0, sizeof(OneFrame));
                                 GPFPD_STATE_PARSER = 0;
-                                ROS_ERROR_STREAM("DATA ERROR IN CASE7.");
+                                std::cout << ("DATA ERROR IN CASE7.");
                             } else//校验和匹配
                             {
                                 GPFPD_STATE_PARSER = 8;
@@ -352,7 +335,7 @@ namespace ns_starneto_mems {
                             //PubMsg();
                             memset(OneFrame, 0, sizeof(OneFrame));
                             GPFPD_STATE_PARSER = 0;
-                            ROS_ERROR_STREAM("DATA ERROR IN CASE8.");
+                            std::cout << ("DATA ERROR IN CASE8.");
                             //printf("End flag <CR> error!\n");
                         }
                         break;
@@ -361,7 +344,7 @@ namespace ns_starneto_mems {
                         if (rbuf[i] == '\n') {
                             delta_t = gnss.gpstime - gpstime_pre;//前后两帧之间的时间差
                             gpstime_pre = gnss.gpstime;
-                            ROS_INFO_STREAM("GPS DATA OK.");
+                            std::cout << ("GPS DATA OK.");
                             //CLEAR_LINE();
                             //printf("Frame period=%f(sec)\n", delta_t);
                             //CLEAR_LINE();
@@ -370,7 +353,7 @@ namespace ns_starneto_mems {
                             //CLEAR();//清屏
                         } else {
                             //printf("End flag <LF> error!\n");
-                            ROS_ERROR_STREAM("DATA ERROR IN CASE9.");
+                            std::cout << ("DATA ERROR IN CASE9.");
                         }
                         memset(OneFrame, 0, sizeof(OneFrame));
                         GPFPD_STATE_PARSER = 0;
@@ -483,7 +466,7 @@ namespace ns_starneto_mems {
                         } else {
                             memset(OneFrame, 0, sizeof(OneFrame));
                             GTIMU_STATE_PARSER = 0;
-                            ROS_ERROR_STREAM("IMU ERROR IN CASE3.");
+                            std::cout << ("IMU ERROR IN CASE3.");
                         }
                         break;
                     case 4: //校验和第二个字符
@@ -504,7 +487,7 @@ namespace ns_starneto_mems {
                             {
                                 memset(OneFrame, 0, sizeof(OneFrame));
                                 GTIMU_STATE_PARSER = 0;
-                                ROS_ERROR_STREAM("IMU ERROR IN CASE4.");
+                                std::cout << ("IMU ERROR IN CASE4.");
                             } else//校验和匹配
                             {
                                 GTIMU_STATE_PARSER = 5;
@@ -521,7 +504,7 @@ namespace ns_starneto_mems {
                             printf("ERROR IN CASE 6.");
                             memset(OneFrame, 0, sizeof(OneFrame));
                             GTIMU_STATE_PARSER = 0;
-                            ROS_ERROR_STREAM("DATA ERROR IN CASE6.");
+                            std::cout << ("DATA ERROR IN CASE6.");
                             //printf("End flag <CR> error!\n");
                         }
                         break;
@@ -529,10 +512,10 @@ namespace ns_starneto_mems {
                         OneFrame[CntByte] = rbuf[i];
                         if (rbuf[i] == '\n') {
                             //printf("A good frame!\n");
-                            ROS_INFO_STREAM("IMU DATA OK");
+                            std::cout << ("IMU DATA OK");
                         } else {
                             //printf("End flag <LF> error!\n");
-                            ROS_ERROR_STREAM("DATA ERROR IN CASE6.");
+                            std::cout << ("DATA ERROR IN CASE6.");
                         }
                         memset(OneFrame, 0, sizeof(OneFrame));
                         GTIMU_STATE_PARSER = 0;
