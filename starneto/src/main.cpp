@@ -1,79 +1,84 @@
-#include  <rclcpp/rclcpp.hpp>
-// #include <ros/ros.h>
+#include "rclcpp/rclcpp.hpp"
+
 #include <slcurses.h>
 #include "starneto_mems.hpp"
+#include <iostream>
+#include <memory>
+#include <functional>
+#include <vector>
 
+#include <chrono>
 
-typedef ns_starneto_mems::Starneto Starneto;
+using namespace std::chrono_literals;
 
-int main(int argc, char **argv) {
-    ros::init(argc, argv, "starneto_mems");
-    ros::NodeHandle nodeHandle("~");
-    Starneto myStarneto(nodeHandle);  // init object
-    myStarneto.initSerial();
-    ros::Rate loop_rate(myStarneto.getNodeRate());
+class NavPublisher : public rclcpp::Node
+{
+  public:
+    NavPublisher()
+    : Node("nav_publisher")
+    {
+      system_clock = std::make_shared<rclcpp::Clock>(RCL_SYSTEM_TIME);
 
-    while (ros::ok()) {
-        myStarneto.run();
-        myStarneto.sendMsg();
-        ros::spinOnce();   // Keeps node alive basically
-        loop_rate.sleep(); // Sleep for loop_rate
+      // this->set_all_parameters();
+      serial_port = "/dev/ttyUSB0";
+      navigator = std::make_shared<Starneto>();
+      navigator->initSerial(serial_port);
+
+      std::cout << "[+] setting up publishers" << std::endl;
+      pub_gpfpd  = this->create_publisher<starneto_msgs::msg::Gpfpd>("GPFPD", 10);
+      pub_gtimu  = this->create_publisher<starneto_msgs::msg::Gtimu>("GTIMU", 10);
+      // pub_pos320 = this->create_publisher<starneto_msgs::msg::Pos320Nav>("Pos320Nav", 10);
+      // auto freq = navigator->getNodeRate();
+      // hardcoding now
+      timer_ = this->create_wall_timer(
+        10ms, std::bind(&NavPublisher::timer_callback, this));
     }
-    return 0;
-}
 
-Starneto::Starneto(){
-    loadParameters();
-    publishToTopics();
+  private:
+    // ROS node items
+    std::shared_ptr<Starneto> navigator;
+
+    rclcpp::Publisher<starneto_msgs::msg::Gpfpd>::SharedPtr pub_gpfpd;
+    rclcpp::Publisher<starneto_msgs::msg::Gtimu>::SharedPtr pub_gtimu;
+    // rclcpp::Publisher<starneto_msgs::msg::Pos320Nav>::SharedPtr pub_pos320;
+    rclcpp::TimerBase::SharedPtr timer_;
+
+    void timer_callback();
+    // void set_all_parameters();
+
+    std::string serial_port;
+    std::string GPFPD_output_topic;
+    std::string GTIMU_output_topic;
+    int node_rate;
+
+    std::shared_ptr<rclcpp::Clock> system_clock;
 };
 
-int Starneto::getNodeRate() const { return node_rate; }
+void NavPublisher::timer_callback(){
+  this->navigator->run();
+  rclcpp::Time now = system_clock->now();
+  this->navigator->fillMsgHead(now);
+  auto gps = this->navigator->getGpfpd();
+  auto imu = this->navigator->getGtimu();
 
-void Starneto::loadParameters() {
-    ROS_INFO("loading handle parameters");
-    if (!nodeHandle.param<int>("node_rate", node_rate, 1)) {
-        ROS_WARN_STREAM("Did not load node_rate.");
-    }
-    if (!nodeHandle.param<std::string>("serial_port", serial_port, "/dev/ttyUSB0")) {
-        ROS_WARN_STREAM("Did not load serial_port.");
-    }
-    if (!nodeHandle.param<std::string>("GPFPD_output_topic", GPFPD_output_topic, "/GPFPD")) {
-        ROS_WARN_STREAM("Did not load GPFPD_output_topic.");
-    }
-    if (!nodeHandle.param<std::string>("GTIMU_output_topic", GTIMU_output_topic, "/GTIMU")) {
-        ROS_WARN_STREAM("Did not load GTIMU_output_topic.");
-    }
+  pub_gpfpd->publish(gps);
+  pub_gtimu->publish(imu);
 }
 
-void Starneto::publishToTopics() {
-    ROS_INFO("publish to topics");
-    pub_gpfpd = nodeHandle.advertise<starneto_ros_msgs::Gpfpd>(GPFPD_output_topic, 100);
-    pub_gtimu = nodeHandle.advertise<starneto_ros_msgs::Gtimu>(GTIMU_output_topic, 100);
-    //Publisher = nodeHandle.advertise<msg_type>(topic_name_, 1);
+// void NavPublisher::set_all_parameters(){
+//   std::vector<rclcpp::Parameter> all_new_parameters{
+//       rclcpp::Parameter("node_rate", 100),
+//       rclcpp::Parameter("serial_port", "/dev/ttyUSB0"),
+//       rclcpp::Parameter("GPFPD_output_topic", "/GPFPD"),
+//       rclcpp::Parameter("GTIMU_output_topic", "/GTIMU"),
+//   };
+//   this->set_parameters(all_new_parameters);
+// }
 
-}
-
-void Starneto::sendMsg() {
-    gnss.header.frame_id = "/gps";
-    gnss.header.stamp = ros::Time::now();//ros时刻
-    imu.header.frame_id = "/imu";
-    imu.header.stamp = gnss.header.stamp;//gnss time
-    pub_gpfpd.publish(gnss);
-    pub_gtimu.publish(imu);
-    //Publisher.publish(msg);
-}
-
-void Starneto::initSerial() {
-    try {
-        //设置串口属性，并打开串口
-        ser.setPort(serial_port);
-        ser.setBaudrate(115200);
-        serial::Timeout to = serial::Timeout::simpleTimeout(1000); //超时定义，单位：ms
-        ser.setTimeout(to);
-        ser.open();
-        ser.flushInput(); // first clear the buffer
-    }
-    catch (serial::IOException &e) {
-        std::cout << ("serial port: " << serial_port << "init failed.") << std::endl;
-    }
+int main(int argc, char * argv[])
+{
+  rclcpp::init(argc, argv);
+  rclcpp::spin(std::make_shared<NavPublisher>());
+  rclcpp::shutdown();
+  return 0;
 }

@@ -1,33 +1,13 @@
-/*
-  Copyright(c) 2021:
-  - Huang Chenrui <hcr2077@outlook.com>
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-  http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
-*/
-
 #ifndef STARNETO_MEMS_HPP
 #define STARNETO_MEMS_HPP
 
-#include "starneto_msgs/msg/gtimu.h"
-#include "starneto_msgs/msg/gpfpd.h"
-#include "starneto_msgs/msg/pos320_nav.h"
+#include "starneto_msgs/msg/gtimu.hpp"
+#include "starneto_msgs/msg/gpfpd.hpp"
+#include "starneto_msgs/msg/pos320_nav.hpp"
 
-// #include "starneto_ros_msgs/Gpfpd.h"
-// #include "starneto_ros_msgs/Gtimu.h"
-// #include "starneto_ros_msgs/Pos320Nav.h"
 #include "serial/serial.h"
 
-namespace ns_starneto_mems {
+#include <rclcpp/rclcpp.hpp>
 
 class Starneto {
 
@@ -39,10 +19,7 @@ class Starneto {
 
   // Method
   //// ROS Method
-  void loadParameters();
-  void publishToTopics();
-  void sendMsg();
-  void initSerial();
+  void initSerial(const std::string);
 
   //// Serial Method
   void run();
@@ -52,14 +29,12 @@ class Starneto {
   void analyzeGpfpd();
   void analyzeGtimu();
   void runAlgorithm();
+  void fillMsgHead(rclcpp::Time);
+
+  starneto_msgs::msg::Gpfpd getGpfpd();
+  starneto_msgs::msg::Gtimu getGtimu();
  
  private:
-  ros::NodeHandle nodeHandle;
-  int node_rate;
-  std::string serial_port;
-  std::string GPFPD_output_topic;
-  std::string GTIMU_output_topic;
-
   char OneFrame[200];   // one frame data
   unsigned char rbuf[1000];  // 接收缓冲区
   int numinbuf;     // buffer num
@@ -84,16 +59,12 @@ class Starneto {
   const int GPFPD_ENABLE = 1;
   const int GTIMU_ENABLE = 2;
 
-  serial::Serial ser;
-  starneto_ros_msgs::Gpfpd gnss;
-  starneto_ros_msgs::Gtimu imu;
-  // Publisher
-  ros::Publisher pub_gpfpd;
-  ros::Publisher pub_gtimu;
-};
+  std::string serial_port;
 
- 
-}
+  serial::Serial ser;
+  starneto_msgs::msg::Gpfpd gnss;
+  starneto_msgs::msg::Gtimu imu;
+};
   
 
 

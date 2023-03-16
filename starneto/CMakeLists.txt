@@ -5,6 +5,8 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+
+
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(starneto_msgs REQUIRED)
@@ -15,8 +17,8 @@ find_package(serial REQUIRED)
 # find_package(<dependency> REQUIRED)
 
 add_executable(start 
-  src/main.cpp
-  src/starneto_mems.cpp
+  src/main1.cpp
+  # src/starneto_mems.cpp
 )
 
 include_directories(
