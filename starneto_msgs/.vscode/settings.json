@@ -1,0 +1,20 @@
+{
+    "python.autoComplete.extraPaths": [
+        "/home/e404/perception_ws/install/rslidar_msg/lib/python3.8/site-packages",
+        "/home/e404/perception_ws/install/autoware_sensing_msgs/lib/python3.8/site-packages",
+        "/home/e404/perception_ws/install/autoware_planning_msgs/lib/python3.8/site-packages",
+        "/home/e404/perception_ws/install/autoware_perception_msgs/lib/python3.8/site-packages",
+        "/home/e404/perception_ws/install/autoware_map_msgs/lib/python3.8/site-packages",
+        "/home/e404/perception_ws/install/autoware_localization_msgs/lib/python3.8/site-packages",
+        "/home/e404/perception_ws/install/autoware_control_msgs/lib/python3.8/site-packages",
+        "/home/e404/perception_ws/install/autoware_common_msgs/lib/python3.8/site-packages",
+        "/home/e404/perception_ws/install/autoware_auto_vehicle_msgs/lib/python3.8/site-packages",
+        "/home/e404/perception_ws/install/autoware_auto_system_msgs/lib/python3.8/site-packages",
+        "/home/e404/perception_ws/install/autoware_auto_planning_msgs/lib/python3.8/site-packages",
+        "/home/e404/perception_ws/install/autoware_auto_perception_msgs/lib/python3.8/site-packages",
+        "/home/e404/perception_ws/install/autoware_auto_mapping_msgs/lib/python3.8/site-packages",
+        "/home/e404/perception_ws/install/autoware_auto_geometry_msgs/lib/python3.8/site-packages",
+        "/home/e404/perception_ws/install/autoware_auto_control_msgs/lib/python3.8/site-packages",
+        "/opt/ros/galactic/lib/python3.8/site-packages"
+    ]
+}

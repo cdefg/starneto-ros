@@ -188,7 +188,6 @@ Serial::readline (string &buffer, size_t size, string eol)
     if (bytes_read == 0) {
       break; // Timeout occured on reading 1 byte
     }
-    if(read_so_far < eol_len) continue;
     if (string (reinterpret_cast<const char*>
          (buffer_ + read_so_far - eol_len), eol_len) == eol) {
       break; // EOL found
@@ -230,7 +229,6 @@ Serial::readlines (size_t size, string eol)
       }
       break; // Timeout occured on reading 1 byte
     }
-    if(read_so_far < eol_len) continue;
     if (string (reinterpret_cast<const char*>
          (buffer_ + read_so_far - eol_len), eol_len) == eol) {
       // EOL found

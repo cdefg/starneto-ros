@@ -1,4 +1,4 @@
-Header  header
+std_msgs/Header  header
 int32   gpsweek
 float64 gpstime
 float64 gx

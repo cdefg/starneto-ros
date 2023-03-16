@@ -466,7 +466,7 @@ public:
               uint32_t read_timeout_multiplier, uint32_t write_timeout_constant,
               uint32_t write_timeout_multiplier)
   {
-    Timeout (timeout)(inter_byte_timeout, read_timeout_constant,
+    Timeout timeout(inter_byte_timeout, read_timeout_constant,
                     read_timeout_multiplier, write_timeout_constant,
                     write_timeout_multiplier);
     return setTimeout(timeout);
