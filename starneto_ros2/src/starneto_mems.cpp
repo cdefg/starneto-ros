@@ -1,24 +1,47 @@
 #include "starneto_mems.hpp"
 #include <sstream>
 #include <iostream>
-#include <rclcpp/rclcpp.hpp>
+#include <cmath>
 
-Starneto::Starneto(){
-    gnss = starneto_msgs::msg::Gpfpd();
-    imu  = starneto_msgs::msg::Gtimu();
+// Initialize functions
+
+Starneto::Starneto(std::string serial_port_name){
+   initSerial(serial_port_name); 
 }
 
-void Starneto::run() {
-    //  Here to start
-    if (!ser.isOpen()) {
+void Starneto::initSerial(const std::string serial_port) {
+    // open serial
+    try {
+        //设置串口属性，并打开串口
+        this->serial_port = serial_port;
+        ser.setPort(serial_port);
+        ser.setBaudrate(115200);
+        serial::Timeout to = serial::Timeout::simpleTimeout(1000); //超时定义，单位：ms
+        ser.setTimeout(to);
+        ser.open();
+        ser.flushInput(); // first clear the buffer
+    }
+    catch (serial::IOException &e) {
+        std::cerr << "serial port: " << serial_port << "init failed." << std::endl;
+    }
+}
+
+Starneto::~Starneto(){
+    ser.close();
+}
+
+// Running functions
+
+void Starneto::run(){
+    if (!ser.isOpen()){
         std::cout << "serial port: " << serial_port << " init failed."  << std::endl;
         return;
     }
-    Starneto::initState();
-    Starneto::readSerial();
+    initState();
+    readSerial();
 }
 
-void Starneto::initState() {
+void Starneto::initState(){
     numinbuf = 0;
     numgetted = 0;
     protocolFlag = UNKNOWN_PROTOCOL;
@@ -42,31 +65,6 @@ void Starneto::readSerial() {
             Starneto::runAlgorithm();
         }
     }// if (numinbuf > 0)
-}
-
-/*****************************
- 功能：计算校验，字符串中所有字符的异或
-返回：返回一个无符号整数
-输入参数：<1>字符串指针，<2>字符串长度（指有效长度，不包括字符串结束标志）
-输出参数：校验结果
-******************************/
-unsigned int GetXorChecksum(const char *pch, int len) {
-    unsigned int cs = 0;
-    int i;
-
-    for (i = 0; i < len; i++)
-        cs ^= pch[i];
-
-    return cs;
-}
-
-/********************************
-功能：度分格式转换为度GPFPD
-********************************/
-double DegMin2Deg(double dddmmpmmmm) {
-    double ddd = floor(dddmmpmmmm / 100.0);
-    double mmpmmmm = dddmmpmmmm - ddd * 100.0;
-    return ddd + mmpmmmm / 60.0;
 }
 
 void Starneto::runAlgorithm() {
@@ -534,36 +532,53 @@ void Starneto::runAlgorithm() {
     }// for i in numgeted
 }// run Algorithm
 
-void Starneto::initSerial(const std::string serial_port) {
-    try {
-        //设置串口属性，并打开串口
-        this->serial_port = serial_port;
-        ser.setPort(serial_port);
-        ser.setBaudrate(115200);
-        serial::Timeout to = serial::Timeout::simpleTimeout(1000); //超时定义，单位：ms
-        ser.setTimeout(to);
-        ser.open();
-        ser.flushInput(); // first clear the buffer
-    }
-    catch (serial::IOException &e) {
-        std::cerr << "serial port: " << serial_port << "init failed." << std::endl;
-    }
+
+// Util functions
+
+unsigned int Starneto::GetXorChecksum(const char *pch, int len) {
+    unsigned int cs = 0;
+    int i;
+
+    for (i = 0; i < len; i++)
+        cs ^= pch[i];
+
+    return cs;
 }
 
-starneto_msgs::msg::Gpfpd Starneto::getGpfpd(){
-    return gnss;
+double Starneto::DegMin2Deg(double dddmmpmmmm) {
+    double ddd = floor(dddmmpmmmm / 100.0);
+    double mmpmmmm = dddmmpmmmm - ddd * 100.0;
+    return ddd + mmpmmmm / 60.0;
 }
 
+// Output functions
 
-starneto_msgs::msg::Gtimu Starneto::getGtimu(){
-    return imu;
+void Starneto::printGPSMsg(){
+    std::cout << 
+    std::endl <<
+    "GPS: " << std::endl <<
+    "gpsweek: " << gnss.gpsweek << std::endl <<
+    "gpstime: " << gnss.gpstime << std::endl <<
+    "heading: " << gnss.heading << std::endl <<
+    "pitch" << gnss.pitch << std::endl <<
+    "roll" << gnss.roll << std::endl <<
+    "lat" << gnss.lat << std::endl <<
+    "lon" << gnss.lon << std::endl <<
+    "alt" << gnss.alt << std::endl
+    ;
 }
 
-void Starneto::fillMsgHead(rclcpp::Time now) {
-    gnss.header.frame_id = "/gps";
-    gnss.header.stamp = now;
-    imu.header.frame_id = "/imu";
-    imu.header.stamp = gnss.header.stamp;//gnss time
+void Starneto::printIMUMsg(){
+    std::cout << 
+    std::endl <<
+    "IMU: " << std::endl <<
+    "ax: " << imu.ax << std::endl <<
+    "ay: " << imu.ay << std::endl <<
+    "az: " << imu.az << std::endl <<
+    "gx: " << imu.gx << std::endl <<
+    "gy: " << imu.gy << std::endl <<
+    "gz: " << imu.gz << std::endl <<
+    "tpr: " << imu.tpr << std::endl
+    ;
 }
 
-// ns_starneto_mems
