@@ -28,6 +28,7 @@ struct GPSMsg{
     uint8   status;
 };
 
+
 struct IMUMsg{
     int32   gpsweek;
     float64 gpstime;
@@ -71,8 +72,8 @@ class Starneto
 
         serial::Serial ser;
 
-        GPSMsg gnss;
-        IMUMsg imu;
+        struct GPSMsg gnss;
+        struct IMUMsg imu;
 
     public:
         // initialize functions
@@ -93,6 +94,8 @@ class Starneto
         // output functions
         void printGPSMsg();
         void printIMUMsg();
+        struct GPSMsg getGPS();
+        struct IMUMsg getIMU();
 };
 
 

@@ -582,3 +582,10 @@ void Starneto::printIMUMsg(){
     ;
 }
 
+struct GPSMsg Starneto::getGPS(){
+    return gnss;
+}
+struct IMUMsg Starneto::getIMU(){
+    return imu;
+}
+

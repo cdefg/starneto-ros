@@ -8,38 +8,36 @@
 
 using namespace std::chrono_literals;
 
-StarnetoNode::StarnetoNode():Node("starneto_node"){
+StarnetoNode::StarnetoNode():rclcpp::Node("starneto_node"){
 
 
-    pub_imu = this->create_publisher<starneto_msgs::msg::Gtimu>("GTIMU", 10);
-    pub_imu = this->create_publisher<starneto_msgs::msg::Gpfpd>("GPFPD", 10);
+    pub_imu_  = this->create_publisher<starneto_msgs::msg::Gtimu>("GTIMU", 10);
+    pub_gnss_ = this->create_publisher<starneto_msgs::msg::Gpfpd>("GPFPD", 10);
     timer_ = this->create_wall_timer(10ms, std::bind(&StarnetoNode::timer_callback, this));
-}
-
-~StarnetoNode::StarnetoNode(){
-    
+    nav_ = std::make_shared<Starneto>("/dev/ttyUSB0");
 }
 
 void StarnetoNode::timer_callback(){
     //create msg struct
-    struct GPSmsg gps;
-    struct IMUmsg imu;
+    nav_->run();
+    struct GPSMsg gps = nav_->getGPS();
+    struct IMUMsg imu = nav_->getIMU();
     //publish msg
     starneto_msgs::msg::Gtimu msg_imu;
     starneto_msgs::msg::Gpfpd msg_gps;
     msg_imu = getIMU(imu);
     msg_gps = getGPS(gps);
 
-    auto now = chrono::system_clock::now();
-    msg_imu.header.stamp = now;
-    msg_gps.header.stamp = now;
+    // auto now = std::chrono::system_clock::now();
+    // msg_imu.header.stamp = now;
+    // msg_gps.header.stamp = now;
 
-    pub_imu->publish(msg_imu);
-    pub_gps->publish(msg_gps);
+    pub_imu_->publish(msg_imu);
+    pub_gnss_->publish(msg_gps);
 }
 
 
-starneto_msgs::msg::Gtimu getIMU(struct IMUmsg imu){
+starneto_msgs::msg::Gtimu getIMU(struct IMUMsg imu){
     starneto_msgs::msg::Gtimu ros_imu;
     ros_imu.gpsweek = imu.gpsweek;
     ros_imu.gpstime = imu.gpstime;
@@ -53,7 +51,7 @@ starneto_msgs::msg::Gtimu getIMU(struct IMUmsg imu){
     return ros_imu;
 }
 
-starneto_msgs::msg::Gpfpd getGPS(struct GPSmsg gps){
+starneto_msgs::msg::Gpfpd getGPS(struct GPSMsg gps){
     starneto_msgs::msg::Gpfpd ros_gps;
     ros_gps.gpsweek = gps.gpsweek;
     ros_gps.gpstime = gps.gpstime;

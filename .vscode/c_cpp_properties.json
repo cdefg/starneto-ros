@@ -31,7 +31,8 @@
                 "/home/wly/nav_ws2/src/starneto_msgs/include/**",
                 "/home/wly/nav_ws2/install/starneto_msgs/include/starneto_msgs/msg/**",
                 "${workspaceFolder}/serial/include",
-                "${workspaceFolder}/starneto_ros2/include"
+                "${workspaceFolder}/starneto_ros2/include",
+                "/home/wly/nav_ws2/install/starneto_msgs/include"
             ],
             "name": "ROS",
             "intelliSenseMode": "gcc-x64",
