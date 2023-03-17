@@ -19,8 +19,10 @@ class StarnetoNode : public rclcpp::Node{
         rclcpp::Publisher<starneto_msgs::msg::Gtimu> pub_imu;
         rclcpp::Publisher<starneto_msgs::msg::Gpfpd> pub_gnss;
 
+};
 
-}
+starneto_msgs::msg::Gtimu getIMU(struct IMUmsg imu);
+starneto_msgs::msg::Gpfpd getGPS(struct GPSmsg gps);
 
 
 #endif //STARNETO_NODE_HPP_
