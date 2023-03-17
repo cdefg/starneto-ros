@@ -14,7 +14,6 @@
 
   <depend>starneto_msgs</depend>
   <depend>serial</depend>
-  <depend>std_msgs</depend>
   <depend>rclcpp</depend>
 
   <export>

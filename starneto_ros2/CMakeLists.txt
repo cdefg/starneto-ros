@@ -11,7 +11,6 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(starneto_msgs REQUIRED)
 find_package(serial REQUIRED)
-find_package(std_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 
 
@@ -22,6 +21,7 @@ find_package(rclcpp REQUIRED)
 add_executable(start 
   src/main.cpp
   src/starneto_mems.cpp
+  src/starneto_node.cpp
 )
 
 include_directories(
@@ -32,7 +32,6 @@ ament_target_dependencies(start
   starneto_msgs
   serial
   rclcpp
-  std_msgs
 )
 
 if(BUILD_TESTING)
