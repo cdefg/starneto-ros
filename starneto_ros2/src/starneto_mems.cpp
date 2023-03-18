@@ -267,7 +267,7 @@ void Starneto::runAlgorithm() {
                     } else {
                         memset(OneFrame, 0, sizeof(OneFrame));
                         GPFPD_STATE_PARSER = 0;
-                        std::cout << ("DATA ERROR IN CASE4.");
+                        std::cout << ("DATA ERROR IN CASE4.")<< std::endl;
                     }
                     str[0] = OneFrame[CntByte - 2];
                     str[1] = OneFrame[CntByte - 1];
@@ -283,7 +283,7 @@ void Starneto::runAlgorithm() {
                     } else {
                         memset(OneFrame, 0, sizeof(OneFrame));
                         GPFPD_STATE_PARSER = 0;
-                        std::cout << ("DATA ERROR IN CASE5.");
+                        std::cout << ("DATA ERROR IN CASE5.")<< std::endl;
                     }
                     break;
                 case 6: //校验和第一个字符
@@ -295,7 +295,7 @@ void Starneto::runAlgorithm() {
                     } else {
                         memset(OneFrame, 0, sizeof(OneFrame));
                         GPFPD_STATE_PARSER = 0;
-                        std::cout << ("DATA ERROR IN CASE6.");
+                        std::cout << ("DATA ERROR IN CASE6.")<< std::endl;
                     }
                     break;
                 case 7: //校验和第二个字符
@@ -317,7 +317,7 @@ void Starneto::runAlgorithm() {
                         {
                             memset(OneFrame, 0, sizeof(OneFrame));
                             GPFPD_STATE_PARSER = 0;
-                            std::cout << ("DATA ERROR IN CASE7.");
+                            std::cout << ("DATA ERROR IN CASE7.")<< std::endl;
                         } else//校验和匹配
                         {
                             GPFPD_STATE_PARSER = 8;
@@ -337,7 +337,7 @@ void Starneto::runAlgorithm() {
                         //PubMsg();
                         memset(OneFrame, 0, sizeof(OneFrame));
                         GPFPD_STATE_PARSER = 0;
-                        std::cout << ("DATA ERROR IN CASE8.");
+                        std::cout << ("DATA ERROR IN CASE8.")<< std::endl;
                         //printf("End flag <CR> error!\n");
                     }
                     break;
@@ -346,7 +346,7 @@ void Starneto::runAlgorithm() {
                     if (rbuf[i] == '\n') {
                         delta_t = gnss.gpstime - gpstime_pre;//前后两帧之间的时间差
                         gpstime_pre = gnss.gpstime;
-                        std::cout << ("GPS DATA OK.");
+                        std::cout << ("GPS DATA OK.")<< std::endl;
                         //CLEAR_LINE();
                         //printf("Frame period=%f(sec)\n", delta_t);
                         //CLEAR_LINE();
@@ -355,7 +355,7 @@ void Starneto::runAlgorithm() {
                         //CLEAR();//清屏
                     } else {
                         //printf("End flag <LF> error!\n");
-                        std::cout << ("DATA ERROR IN CASE9.");
+                        std::cout << ("DATA ERROR IN CASE9.")<< std::endl;
                     }
                     memset(OneFrame, 0, sizeof(OneFrame));
                     GPFPD_STATE_PARSER = 0;
@@ -468,7 +468,7 @@ void Starneto::runAlgorithm() {
                     } else {
                         memset(OneFrame, 0, sizeof(OneFrame));
                         GTIMU_STATE_PARSER = 0;
-                        std::cout << ("IMU ERROR IN CASE3.");
+                        std::cout << ("IMU ERROR IN CASE3.")<< std::endl;
                     }
                     break;
                 case 4: //校验和第二个字符
@@ -489,7 +489,7 @@ void Starneto::runAlgorithm() {
                         {
                             memset(OneFrame, 0, sizeof(OneFrame));
                             GTIMU_STATE_PARSER = 0;
-                            std::cout << ("IMU ERROR IN CASE4.");
+                            std::cout << ("IMU ERROR IN CASE4.")<< std::endl;
                         } else//校验和匹配
                         {
                             GTIMU_STATE_PARSER = 5;
@@ -506,7 +506,7 @@ void Starneto::runAlgorithm() {
                         printf("ERROR IN CASE 6.");
                         memset(OneFrame, 0, sizeof(OneFrame));
                         GTIMU_STATE_PARSER = 0;
-                        std::cout << ("DATA ERROR IN CASE6.");
+                        std::cout << ("DATA ERROR IN CASE6.") << std::endl;
                         //printf("End flag <CR> error!\n");
                     }
                     break;
@@ -514,10 +514,10 @@ void Starneto::runAlgorithm() {
                     OneFrame[CntByte] = rbuf[i];
                     if (rbuf[i] == '\n') {
                         //printf("A good frame!\n");
-                        std::cout << ("IMU DATA OK");
+                        std::cout << ("IMU DATA OK") << std::endl;
                     } else {
                         //printf("End flag <LF> error!\n");
-                        std::cout << ("DATA ERROR IN CASE6.");
+                        std::cout << ("DATA ERROR IN CASE6.") << std::endl;
                     }
                     memset(OneFrame, 0, sizeof(OneFrame));
                     GTIMU_STATE_PARSER = 0;
